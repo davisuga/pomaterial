@@ -1,92 +1,123 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useState } from "react";
 import AppLoading from "expo-app-loading";
 import { useFonts } from "expo-font";
-import styled from "styled-components/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-const darkBrown = "#31302F";
+import { SafeAreaView } from "react-native";
+import Svg, { Circle, Path } from "react-native-svg";
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+} from "react-native-reanimated";
+
+import {
+  flex,
+  Container,
+  Header,
+  Label,
+  Content,
+  Title,
+  Row,
+  Button,
+  BigButton,
+  TabBar,
+  SelectedTabIndicator,
+} from "./styles";
+
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+
+const brown = "#31302F";
 const lightYellow = "#e8e3c1";
-const Container = styled.View`
-  flex-direction: column;
-  background-color: #1c1a1c;
-  flex: 1;
-  align-items: stretch;
-`;
-const Label = styled.Text`
-  font-family: ProductSans;
-  color: #f3eff1;
-  font-size: 24px;
-`;
-const Title = styled(Label)`
-  font-size: 36px;
-`;
-const Header = styled.View`
-  padding: 30px;
-`;
-const Content = styled.View`
-  background-color: #31302f;
-  border-radius: 30px;
-  padding: 30px;
-  flex: 14;
-`;
-const TabBar = styled.View`
-  padding-top: 30px;
-  padding-bottom: 30px;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  flex: 1;
-  flex-direction: row;
-`;
-const SelectedTabIndicator = styled.View`
-  width: 19%;
-  min-height: 30px;
-  border-radius: 20px;
-  background-color: #e8e3c1;
-  justify-content: center;
-  align-items: center;
-`;
+const yellow = "#FDE888";
+const darkBrow = "#1c1a1c";
+
+const currentTheme = {
+  bg: darkBrow,
+  surface: brown,
+  primary: lightYellow,
+  accent: yellow,
+};
+export const { primary, accent, bg, surface } = currentTheme;
+
 export default function App() {
+  const [clockActive, setClockActive] = useState(false);
+  const radius = useSharedValue(50);
+
+  const animatedProps = useAnimatedProps(() => {
+    // draw a circle
+    const path = `
+    M 100, 100
+    m -${radius.value}, 0
+    a ${radius.value},${radius.value} 0 1,0 ${radius.value * 2},0
+    a ${radius.value},${radius.value} 0 1,0 ${-radius.value * 2},0
+    `;
+    return {
+      d: path,
+    };
+  });
+
+  const [title, setTitle] = useState("Pasta");
   let [fontsLoaded] = useFonts({
     ProductSans: require("./assets/ProductSans.ttf"),
   });
+
   if (!fontsLoaded) {
     return <AppLoading />;
   }
   return (
-    <Container>
-      <Header>
-        <Label>Timer</Label>
-      </Header>
-      <Content>
-        <Title>Pasta</Title>
-      </Content>
-      <TabBar>
-        <MaterialCommunityIcons name="alarm" size={20} color={lightYellow} />
-        <MaterialCommunityIcons
-          name="clock-outline"
-          size={20}
-          color={lightYellow}
-        />
-        <SelectedTabIndicator>
+    <SafeAreaView style={flex}>
+      <StatusBar backgroundColor={bg} />
+      <Container>
+        <Header>
+          <Label>Timer</Label>
+        </Header>
+        <Content>
+          <Title value={title} onChange={setTitle} />
+          <Svg>
+            <AnimatedPath animatedProps={animatedProps} fill="black" />
+          </Svg>
+          <Row>
+            <Button>
+              <MaterialCommunityIcons
+                name="trash-can-outline"
+                size={20}
+                color={surface}
+              />
+            </Button>
+            <BigButton>
+              <MaterialCommunityIcons name="pause" size={30} color={surface} />
+            </BigButton>
+            <Button>
+              <MaterialCommunityIcons name="plus" size={20} color={surface} />
+            </Button>
+          </Row>
+        </Content>
+        <TabBar>
+          <MaterialCommunityIcons name="alarm" size={20} color={primary} />
           <MaterialCommunityIcons
-            name="timer-sand-full"
+            name="clock-outline"
             size={20}
-            color={darkBrown}
+            color={primary}
           />
-        </SelectedTabIndicator>
-        <MaterialCommunityIcons
-          name="timer-outline"
-          size={20}
-          color={lightYellow}
-        />
-        <MaterialCommunityIcons
-          name="bed-outline"
-          size={20}
-          color={lightYellow}
-        />
-      </TabBar>
-    </Container>
+          <SelectedTabIndicator>
+            <MaterialCommunityIcons
+              name="timer-sand-full"
+              size={20}
+              color={surface}
+            />
+          </SelectedTabIndicator>
+          <MaterialCommunityIcons
+            name="timer-outline"
+            size={20}
+            color={primary}
+          />
+          <MaterialCommunityIcons
+            name="bed-outline"
+            size={20}
+            color={primary}
+          />
+        </TabBar>
+      </Container>
+    </SafeAreaView>
   );
 }
