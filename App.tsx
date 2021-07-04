@@ -2,12 +2,14 @@ import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
 import AppLoading from "expo-app-loading";
 import { useFonts } from "expo-font";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native";
+import Icon from "./components/Icon";
+import { SafeAreaView, StyleSheet } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedProps,
+  withSpring,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 
 import {
@@ -23,21 +25,18 @@ import {
   TabBar,
   SelectedTabIndicator,
 } from "./styles";
+import { currentTheme } from "./theme";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-
-const brown = "#31302F";
-const lightYellow = "#e8e3c1";
-const yellow = "#FDE888";
-const darkBrow = "#1c1a1c";
-
-const currentTheme = {
-  bg: darkBrow,
-  surface: brown,
-  primary: lightYellow,
-  accent: yellow,
-};
-export const { primary, accent, bg, surface } = currentTheme;
+const { primary, accent, bg, surface } = currentTheme;
+const styles = StyleSheet.create({
+  box: {
+    backgroundColor: "#0002",
+    flexShrink: 1,
+    justifyContent: `center`,
+    alignItems: "center",
+  },
+});
 
 export default function App() {
   const [clockActive, setClockActive] = useState(false);
@@ -61,9 +60,19 @@ export default function App() {
     ProductSans: require("./assets/ProductSans.ttf"),
   });
 
+  const animatedStyles = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: radius.value }],
+    };
+  });
+
   if (!fontsLoaded) {
     return <AppLoading />;
   }
+  const animateBall = () => {
+    radius.value = withSpring(Math.random() * 100);
+  };
+
   return (
     <SafeAreaView style={flex}>
       <StatusBar backgroundColor={bg} />
@@ -71,51 +80,48 @@ export default function App() {
         <Header>
           <Label>Timer</Label>
         </Header>
+
         <Content>
+          {/* <Animated.View style={[styles.box, animatedStyles]} /> */}
           <Title value={title} onChange={setTitle} />
-          <Svg>
-            <AnimatedPath animatedProps={animatedProps} fill="black" />
+          <Svg style={[styles.box]}>
+            <AnimatedPath animatedProps={animatedProps} fill={accent} />
           </Svg>
           <Row>
             <Button>
-              <MaterialCommunityIcons
-                name="trash-can-outline"
-                size={20}
-                color={surface}
-              />
+              <Icon name="trash-can-outline" size={"sm"} color={surface} />
             </Button>
             <BigButton>
-              <MaterialCommunityIcons name="pause" size={30} color={surface} />
+              <Icon name="pause" size={"md"} color={surface} />
             </BigButton>
             <Button>
-              <MaterialCommunityIcons name="plus" size={20} color={surface} />
+              <Icon name="plus" size={"sm"} color={surface} />
             </Button>
           </Row>
         </Content>
         <TabBar>
-          <MaterialCommunityIcons name="alarm" size={20} color={primary} />
-          <MaterialCommunityIcons
-            name="clock-outline"
-            size={20}
+          <Icon
+            onPress={animateBall}
+            name="alarm"
+            size={"sm"}
             color={primary}
           />
-          <SelectedTabIndicator>
-            <MaterialCommunityIcons
+          <Icon
+            onPress={animateBall}
+            name="clock-outline"
+            size={"sm"}
+            color={primary}
+          />
+          <SelectedTabIndicator onPress={animateBall}>
+            <Icon
+              onPress={animateBall}
               name="timer-sand-full"
-              size={20}
+              size={"sm"}
               color={surface}
             />
           </SelectedTabIndicator>
-          <MaterialCommunityIcons
-            name="timer-outline"
-            size={20}
-            color={primary}
-          />
-          <MaterialCommunityIcons
-            name="bed-outline"
-            size={20}
-            color={primary}
-          />
+          <Icon name="timer-outline" size={"sm"} color={primary} />
+          <Icon name="bed-outline" size={"sm"} color={primary} />
         </TabBar>
       </Container>
     </SafeAreaView>

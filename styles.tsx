@@ -1,6 +1,7 @@
 import styled from "styled-components/native";
-import { primary, accent, bg, surface } from "./App";
 
+import { currentTheme } from "./theme";
+const { primary, accent, bg, surface } = currentTheme;
 export const Container = styled.View`
   flex-direction: column;
   background-color: ${bg};
@@ -43,7 +44,7 @@ export const Row = styled.View`
   justify-content: space-between;
   align-items: center;
 `;
-export const SelectedTabIndicator = styled.View`
+export const SelectedTabIndicator = styled.TouchableOpacity`
   width: 19%;
   min-height: 30px;
   border-radius: 200px;
